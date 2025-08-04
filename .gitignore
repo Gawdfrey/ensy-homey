@@ -1,0 +1,11 @@
+/env.json
+/node_modules/
+/.homeybuild/
+*.log
+.DS_Store
+.vscode/
+*.tsbuildinfo
+build/
+dist/
+.env
+.env.local

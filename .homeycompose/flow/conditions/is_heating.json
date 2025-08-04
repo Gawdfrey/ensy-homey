@@ -1,0 +1,15 @@
+{
+  "title": {
+    "en": "Is heating"
+  },
+  "titleFormatted": {
+    "en": "!{{Is|Is not}} heating"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=ensy-climate"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "id": "com.rein.ensy",
+  "version": "1.0.0",
+  "compatibility": ">=12.4.0",
+  "sdk": 3,
+  "platforms": ["local"],
+  "name": {
+    "en": "Ensy Homey"
+  },
+  "description": {
+    "en": "Connect to your Ensy ventilation device"
+  },
+  "category": ["climate"],
+  "permissions": [],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png", 
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "author": {
+    "name": "Rein Undheim",
+    "email": "rein@undheim.io"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "title": {
+    "en": "Preset mode changed"
+  },
+  "tokens": [
+    {
+      "name": "preset_mode",
+      "type": "string",
+      "title": {
+        "en": "Preset mode"
+      }
+    }
+  ],
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=ensy-climate"
+    }
+  ]
+}

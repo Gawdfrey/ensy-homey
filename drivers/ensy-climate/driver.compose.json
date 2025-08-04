@@ -1,0 +1,74 @@
+{
+  "name": {
+    "en": "Ensy Ventilation Unit"
+  },
+  "class": "thermostat",
+  "capabilities": [
+    "target_temperature",
+    "measure_temperature",
+    "thermostat_mode",
+    "fan_speed",
+    "heating",
+    "measure_temperature.extract",
+    "measure_temperature.exhaust", 
+    "measure_temperature.outside",
+    "measure_temperature.heater"
+  ],
+  "capabilitiesOptions": {
+    "target_temperature": {
+      "min": 15,
+      "max": 26,
+      "step": 1
+    },
+    "thermostat_mode": {
+      "values": [
+        {
+          "id": "heat",
+          "title": {
+            "en": "Heat"
+          }
+        },
+        {
+          "id": "off", 
+          "title": {
+            "en": "Away"
+          }
+        }
+      ]
+    },
+    "measure_temperature.extract": {
+      "title": {
+        "en": "Extract Temperature"
+      }
+    },
+    "measure_temperature.exhaust": {
+      "title": {
+        "en": "Exhaust Temperature"
+      }
+    },
+    "measure_temperature.outside": {
+      "title": {
+        "en": "Outside Temperature"
+      }
+    },
+    "measure_temperature.heater": {
+      "title": {
+        "en": "Heater Temperature"
+      }
+    }
+  },
+  "images": {
+    "small": "/drivers/ensy-climate/assets/images/small.png",
+    "large": "/drivers/ensy-climate/assets/images/large.png",
+    "xlarge": "/drivers/ensy-climate/assets/images/xlarge.png"
+  },
+  "pair": [
+    {
+      "id": "loading"
+    },
+    {
+      "id": "manual_pairing",
+      "template": "add_devices"
+    }
+  ]
+}

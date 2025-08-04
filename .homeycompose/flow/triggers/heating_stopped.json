@@ -1,0 +1,12 @@
+{
+  "title": {
+    "en": "Heating stopped"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=ensy-climate"
+    }
+  ]
+}

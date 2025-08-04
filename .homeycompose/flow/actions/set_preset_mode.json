@@ -1,0 +1,42 @@
+{
+  "title": {
+    "en": "Set preset mode"
+  },
+  "titleFormatted": {
+    "en": "Set preset mode to [[preset_mode]]"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=ensy-climate"
+    },
+    {
+      "type": "dropdown",
+      "name": "preset_mode",
+      "title": {
+        "en": "Preset mode"
+      },
+      "values": [
+        {
+          "id": "home",
+          "title": {
+            "en": "Home"
+          }
+        },
+        {
+          "id": "away", 
+          "title": {
+            "en": "Away"
+          }
+        },
+        {
+          "id": "boost",
+          "title": {
+            "en": "Boost"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "title": {
+    "en": "Preset mode is"
+  },
+  "titleFormatted": {
+    "en": "Preset mode !{{is|is not}} [[preset_mode]]"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=ensy-climate"
+    },
+    {
+      "type": "dropdown",
+      "name": "preset_mode",
+      "title": {
+        "en": "Preset mode"
+      },
+      "values": [
+        {
+          "id": "heat",
+          "title": {
+            "en": "Home"
+          }
+        },
+        {
+          "id": "off",
+          "title": {
+            "en": "Away"
+          }
+        }
+      ]
+    }
+  ]
+}
