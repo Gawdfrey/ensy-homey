@@ -29,6 +29,7 @@ A Homey Pro app for connecting to Ensy ventilation devices.
 ## Technical Details
 
 This app connects to Ensy devices via MQTT over WebSockets using the same protocol as the official Ensy app:
+
 - Endpoint: `app.ensy.no:8083/mqtt`
 - Authentication: MAC address-based
 - Protocol: MQTT over WebSockets with TLS
@@ -36,10 +37,6 @@ This app connects to Ensy devices via MQTT over WebSockets using the same protoc
 Based on the [ensy-home-assistant](https://github.com/alexbrasetvik/ensy-home-assistant/) Python service.
 
 ## MAC Address Discovery
-
-Ensy devices typically use MAC addresses starting with:
-- `34AB95*` 
-- `C4DEE2*`
 
 You can find your device's MAC address in your router's DHCP client list or by checking the device label.
 

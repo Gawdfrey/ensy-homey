@@ -7,23 +7,255 @@
   "platforms": [
     "local"
   ],
+  "brandColor": "#007eff",
   "name": {
-    "en": "Ensy Homey"
+    "en": "Ensy Ventilation"
   },
   "description": {
-    "en": "Connect to your Ensy device"
+    "en": "Adds support for controlling your Ensy ventilation device"
   },
   "category": [
     "climate"
   ],
   "permissions": [],
-  "images": {
-    "small": "/assets/images/small.png",
-    "large": "/assets/images/large.png",
-    "xlarge": "/assets/images/xlarge.png"
-  },
   "author": {
     "name": "Rein Undheim",
     "email": "rein@undheim.io"
-  }
+  },
+  "flow": {
+    "triggers": [
+      {
+        "title": {
+          "en": "Heating started"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=ensy-climate"
+          }
+        ],
+        "id": "heating_started"
+      },
+      {
+        "title": {
+          "en": "Heating stopped"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=ensy-climate"
+          }
+        ],
+        "id": "heating_stopped"
+      },
+      {
+        "title": {
+          "en": "Preset mode changed"
+        },
+        "tokens": [
+          {
+            "name": "preset_mode",
+            "type": "string",
+            "title": {
+              "en": "Preset mode"
+            }
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=ensy-climate"
+          }
+        ],
+        "id": "preset_mode_changed"
+      }
+    ],
+    "conditions": [
+      {
+        "title": {
+          "en": "Is heating"
+        },
+        "titleFormatted": {
+          "en": "!{{Is|Is not}} heating"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=ensy-climate"
+          }
+        ],
+        "id": "is_heating"
+      },
+      {
+        "title": {
+          "en": "Preset mode is"
+        },
+        "titleFormatted": {
+          "en": "Preset mode !{{is|is not}} [[preset_mode]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=ensy-climate"
+          },
+          {
+            "type": "dropdown",
+            "name": "preset_mode",
+            "title": {
+              "en": "Preset mode"
+            },
+            "values": [
+              {
+                "id": "heat",
+                "title": {
+                  "en": "Home"
+                }
+              },
+              {
+                "id": "off",
+                "title": {
+                  "en": "Away"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "preset_mode_is"
+      }
+    ],
+    "actions": [
+      {
+        "title": {
+          "en": "Set preset mode"
+        },
+        "titleFormatted": {
+          "en": "Set preset mode to [[preset_mode]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=ensy-climate"
+          },
+          {
+            "type": "dropdown",
+            "name": "preset_mode",
+            "title": {
+              "en": "Preset mode"
+            },
+            "values": [
+              {
+                "id": "home",
+                "title": {
+                  "en": "Home"
+                }
+              },
+              {
+                "id": "away",
+                "title": {
+                  "en": "Away"
+                }
+              },
+              {
+                "id": "boost",
+                "title": {
+                  "en": "Boost"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "set_preset_mode"
+      }
+    ]
+  },
+  "drivers": [
+    {
+      "name": {
+        "en": "Ensy Ventilation Unit"
+      },
+      "class": "airconditioning",
+      "capabilities": [
+        "target_temperature",
+        "measure_temperature",
+        "thermostat_mode",
+        "fan_speed",
+        "onoff.heating",
+        "measure_temperature.extract",
+        "measure_temperature.exhaust",
+        "measure_temperature.outside",
+        "measure_temperature.heater"
+      ],
+      "capabilitiesOptions": {
+        "target_temperature": {
+          "min": 15,
+          "max": 26,
+          "step": 1
+        },
+        "thermostat_mode": {
+          "values": [
+            {
+              "id": "heat",
+              "title": {
+                "en": "Heat"
+              }
+            },
+            {
+              "id": "off",
+              "title": {
+                "en": "Away"
+              }
+            }
+          ]
+        },
+        "measure_temperature.extract": {
+          "title": {
+            "en": "Extract Temperature"
+          }
+        },
+        "measure_temperature.exhaust": {
+          "title": {
+            "en": "Exhaust Temperature"
+          }
+        },
+        "measure_temperature.outside": {
+          "title": {
+            "en": "Outside Temperature"
+          }
+        },
+        "measure_temperature.heater": {
+          "title": {
+            "en": "Heater Temperature"
+          }
+        },
+        "onoff.heating": {
+          "title": {
+            "en": "Heating"
+          }
+        }
+      },
+      "pair": [
+        {
+          "id": "manual_pairing"
+        },
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ],
+      "id": "ensy-climate"
+    }
+  ]
 }

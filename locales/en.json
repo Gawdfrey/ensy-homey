@@ -1,1 +1,13 @@
-{}
+{
+  "pair": {
+    "manual": {
+      "title": "Add Ensy Device",
+      "description": "Enter your Ensy device's MAC address to connect.",
+      "mac_address": "MAC Address:",
+      "mac_help": "Found on device label or in router DHCP list",
+      "insecure_tls": "Allow insecure TLS (for expired certificates)",
+      "insecure_help": "Enable if connection fails due to certificate issues",
+      "connect": "Connect Device"
+    }
+  }
+}

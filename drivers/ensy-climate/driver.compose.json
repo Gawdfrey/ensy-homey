@@ -2,15 +2,15 @@
   "name": {
     "en": "Ensy Ventilation Unit"
   },
-  "class": "thermostat",
+  "class": "airconditioning",
   "capabilities": [
     "target_temperature",
     "measure_temperature",
     "thermostat_mode",
     "fan_speed",
-    "heating",
+    "onoff.heating",
     "measure_temperature.extract",
-    "measure_temperature.exhaust", 
+    "measure_temperature.exhaust",
     "measure_temperature.outside",
     "measure_temperature.heater"
   ],
@@ -29,7 +29,7 @@
           }
         },
         {
-          "id": "off", 
+          "id": "off",
           "title": {
             "en": "Away"
           }
@@ -55,19 +55,26 @@
       "title": {
         "en": "Heater Temperature"
       }
+    },
+    "onoff.heating": {
+      "title": {
+        "en": "Heating"
+      }
     }
-  },
-  "images": {
-    "small": "/drivers/ensy-climate/assets/images/small.png",
-    "large": "/drivers/ensy-climate/assets/images/large.png",
-    "xlarge": "/drivers/ensy-climate/assets/images/xlarge.png"
   },
   "pair": [
     {
-      "id": "loading"
+      "id": "manual_pairing"
     },
     {
-      "id": "manual_pairing",
+      "id": "list_devices",
+      "template": "list_devices",
+      "navigation": {
+        "next": "add_devices"
+      }
+    },
+    {
+      "id": "add_devices",
       "template": "add_devices"
     }
   ]

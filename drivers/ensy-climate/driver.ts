@@ -1,51 +1,48 @@
-import Homey from 'homey';
+import Homey from "homey";
 
 export = class EnsyClimateDriver extends Homey.Driver {
-
   async onInit() {
-    this.log('Ensy Climate Driver has been initialized');
+    this.log("Ensy Climate Driver has been initialized");
   }
 
   async onPair(session: any) {
-    session.setHandler('showView', async (viewId: string) => {
-      if (viewId === 'loading') {
-        // Auto-discover devices via DHCP/network scan
-        await this.discoverDevices(session);
-      }
+    let discoveredDevices: any[] = [];
+
+    session.setHandler("list_devices", async () => {
+      return discoveredDevices;
     });
 
-    session.setHandler('manual_pairing', async (data: { mac_address: string, allow_insecure_tls: boolean }) => {
-      const { EnsyClient } = await import('../../lib/ensy-client.js');
-      
-      try {
-        const isValid = await EnsyClient.testConnectivity(data.mac_address, data.allow_insecure_tls);
-        if (isValid) {
-          return {
-            success: true,
-            device: {
+    session.setHandler(
+      "manual_pairing",
+      async (data: { mac_address: string }) => {
+        const { EnsyClient } = await import("../../lib/ensy-client.js");
+
+        try {
+          this.log("Testing connectivity for device:", data.mac_address);
+          const isValid = await EnsyClient.testConnectivity(data.mac_address);
+
+          if (isValid) {
+            const device = {
               name: `Ensy (${data.mac_address})`,
               data: {
+                id: data.mac_address.replace(/:/g, "").toLowerCase(),
                 mac_address: data.mac_address,
-                allow_insecure_tls: data.allow_insecure_tls
-              }
-            }
-          };
-        } else {
-          throw new Error('Could not connect to device');
+              },
+            };
+
+            discoveredDevices = [device];
+            this.log("Device validated successfully:", device);
+            return { success: true };
+          } else {
+            throw new Error(
+              "Could not connect to device - please check MAC address and network connectivity"
+            );
+          }
+        } catch (error) {
+          this.error("Manual pairing failed:", error);
+          throw error;
         }
-      } catch (error) {
-        this.error('Manual pairing failed:', error);
-        throw error;
       }
-    });
+    );
   }
-
-  private async discoverDevices(session: any) {
-    // In a real implementation, we would scan the network for Ensy devices
-    // For now, we'll skip to manual pairing
-    setTimeout(() => {
-      session.nextView();
-    }, 2000);
-  }
-
 };
