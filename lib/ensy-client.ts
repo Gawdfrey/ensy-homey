@@ -97,7 +97,7 @@ export class EnsyClient extends EventEmitter {
 
     const key = topic.substring(this.stateTopicPrefix.length);
     const previousState = { ...this.state };
-
+    console.log("Received message:", key, value);
     switch (key) {
       case "temperature":
         this.state.temperatureTarget = parseInt(value);

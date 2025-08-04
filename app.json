@@ -235,7 +235,7 @@
         },
         "onoff.heating": {
           "title": {
-            "en": "Heating"
+            "en": "Turn on/off"
           }
         }
       },

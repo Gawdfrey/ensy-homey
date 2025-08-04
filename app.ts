@@ -33,16 +33,5 @@ module.exports = class EnsyHomeyApp extends Homey.App {
       const currentMode = args.device.getCapabilityValue("thermostat_mode");
       return currentMode === args.preset_mode;
     });
-
-    // Trigger cards
-    const heatingStartedTrigger =
-      this.homey.flow.getDeviceTriggerCard("heating_started");
-    const heatingStoppedTrigger =
-      this.homey.flow.getDeviceTriggerCard("heating_stopped");
-    const presetModeChangedTrigger = this.homey.flow.getDeviceTriggerCard(
-      "preset_mode_changed"
-    );
-
-    // These will be triggered from the device when state changes
   }
 };

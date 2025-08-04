@@ -113,7 +113,7 @@ export = class EnsyClimateDevice extends Homey.Device {
 
     // Update heating indicator and trigger heating events
     if (state.isHeating !== undefined) {
-      const previousHeating = this.getCapabilityValue("onoff.heating");
+      const previousHeating = this.getCapabilityValue("onoff");
       this.setCapabilityValue("onoff.heating", state.isHeating);
 
       if (previousHeating !== state.isHeating) {
