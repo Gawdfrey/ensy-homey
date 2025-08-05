@@ -8,16 +8,20 @@
     "local"
   ],
   "brandColor": "#007eff",
+  "source": "https://github.com/gawdfrey/ensy-homey",
+  "support": "mailto:rein@undheim.io",
+  "bugs": {
+    "url": "https://github.com/gawdfrey/ensy-homey/issues"
+  },
   "name": {
     "en": "Ensy Ventilation"
   },
   "images": {
     "small": "/assets/images/small.png",
-    "large": "/assets/images/large.png",
-    "xlarge": "/assets/images/xlarge.png"
+    "large": "/assets/images/large.png"
   },
   "description": {
-    "en": ""
+    "en": "Ventilate your homes with InoVent ventilation from Ensy. Unofficial Homey App"
   },
   "category": [
     "climate"
@@ -198,8 +202,7 @@
       ],
       "images": {
         "small": "/drivers/inovent/assets/images/small.png",
-        "large": "/drivers/inovent/assets/images/large.png",
-        "xlarge": "/drivers/inovent/assets/images/xlarge.png"
+        "large": "/drivers/inovent/assets/images/large.png"
       },
       "capabilitiesOptions": {
         "target_temperature": {
