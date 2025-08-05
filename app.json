@@ -11,8 +11,13 @@
   "name": {
     "en": "Ensy Ventilation"
   },
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
   "description": {
-    "en": "Adds support for controlling your Ensy ventilation device"
+    "en": ""
   },
   "category": [
     "climate"
@@ -177,7 +182,7 @@
   "drivers": [
     {
       "name": {
-        "en": "Ensy Ventilation Unit"
+        "en": "InoVent AHU Units"
       },
       "class": "airconditioning",
       "capabilities": [
@@ -191,6 +196,11 @@
         "measure_temperature.outside",
         "measure_temperature.heater"
       ],
+      "images": {
+        "small": "/drivers/inovent/assets/images/small.png",
+        "large": "/drivers/inovent/assets/images/large.png",
+        "xlarge": "/drivers/inovent/assets/images/xlarge.png"
+      },
       "capabilitiesOptions": {
         "target_temperature": {
           "min": 15,
@@ -255,7 +265,7 @@
           "template": "add_devices"
         }
       ],
-      "id": "ensy-climate"
+      "id": "inovent"
     }
   ]
 }

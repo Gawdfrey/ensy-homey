@@ -1,6 +1,6 @@
 {
   "name": {
-    "en": "Ensy Ventilation Unit"
+    "en": "InoVent AHU Units"
   },
   "class": "airconditioning",
   "capabilities": [
@@ -14,6 +14,10 @@
     "measure_temperature.outside",
     "measure_temperature.heater"
   ],
+  "images": {
+    "small": "/drivers/inovent/assets/images/small.png",
+    "large": "/drivers/inovent/assets/images/large.png"
+  },
   "capabilitiesOptions": {
     "target_temperature": {
       "min": 15,

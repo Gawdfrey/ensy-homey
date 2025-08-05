@@ -4,24 +4,9 @@ IMPORTANT DISCLAIMER: This app is developed independently and is NOT affiliated 
 
 Control your Ensy ventilation unit directly from your Homey smart home hub. This unofficial app allows you to monitor temperatures, adjust settings, and create advanced automations for your Ensy climate system.
 
-Features:
-• Monitor multiple temperature sensors (extract, exhaust, outside, heater)
-• Control target temperature and thermostat modes
-• Switch between Home, Away, and Boost preset modes
-• Fan speed control
-• Heating status monitoring
-• Flow card support for advanced automations
-• Real-time temperature readings
+Only tested with InoVent AHU-200 KH, but should work for all devices in the InoVent series
 
-Supported Flow Cards:
-- Triggers: Heating started/stopped, preset mode changed
-- Conditions: Check if heating, verify preset mode
-- Actions: Set preset modes (Home/Away/Boost)
+You need to connect the unit to Ensy's cloud system before using this.
 
-Setup:
-1. Ensure your Ensy device is connected to your network
-2. Add the Ensy Ventilation Unit device through manual pairing
-3. Enter your device's IP address and connection details
-4. Configure temperature ranges and preset modes as needed
 
-AGAIN: This is an UNOFFICIAL app with NO WARRANTY. The developer is not affiliated with Ensy and accepts no liability for device damage or system failures. Test thoroughly and use at your own discretion.
+

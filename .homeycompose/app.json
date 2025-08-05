@@ -5,11 +5,20 @@
   "sdk": 3,
   "platforms": ["local"],
   "brandColor": "#007eff",
+  "source": "https://github.com/gawdfrey/ensy-homey",
+  "support": "mailto:rein@undheim.io",
+  "bugs": {
+    "url": "https://github.com/gawdfrey/ensy-homey/issues"
+  },
   "name": {
     "en": "Ensy Ventilation"
   },
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png"
+  },
   "description": {
-    "en": "Adds support for controlling your Ensy ventilation device"
+    "en": "Ventilate your homes with InoVent ventilation from Ensy. Unofficial Homey App"
   },
   "category": ["climate"],
   "permissions": [],

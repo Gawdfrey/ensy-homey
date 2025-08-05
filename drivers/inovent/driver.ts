@@ -1,6 +1,6 @@
 import Homey from "homey";
 
-export = class EnsyClimateDriver extends Homey.Driver {
+export = class InoventVentilationDriver extends Homey.Driver {
   async onInit() {
     this.log("Ensy Climate Driver has been initialized");
   }
