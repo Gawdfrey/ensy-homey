@@ -1,9 +1,11 @@
 {
   "id": "com.rein.ensy",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "compatibility": ">=12.4.0",
   "sdk": 3,
-  "platforms": ["local"],
+  "platforms": [
+    "local"
+  ],
   "brandColor": "#007eff",
   "source": "https://github.com/gawdfrey/ensy-homey",
   "support": "mailto:rein@undheim.io",
@@ -20,7 +22,9 @@
   "description": {
     "en": "Ventilate your homes with InoVent ventilation from Ensy. Unofficial Homey App"
   },
-  "category": ["climate"],
+  "category": [
+    "climate"
+  ],
   "permissions": [],
   "author": {
     "name": "Rein Undheim",
