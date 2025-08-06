@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.rein.ensy",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "compatibility": ">=12.4.0",
   "sdk": 3,
   "platforms": [
@@ -14,14 +14,16 @@
     "url": "https://github.com/gawdfrey/ensy-homey/issues"
   },
   "name": {
-    "en": "Ensy Ventilation"
+    "en": "Ensy Ventilation",
+    "no": "Ensy Ventilasjon"
   },
   "images": {
     "small": "/assets/images/small.png",
     "large": "/assets/images/large.png"
   },
   "description": {
-    "en": "Ventilate your homes with InoVent ventilation from Ensy. Unofficial Homey App"
+    "en": "Ventilate your homes with InoVent ventilation from Ensy. Unofficial Homey App",
+    "no": "Ventiler hjemmet ditt med InoVent ventilasjon fra Ensy. Uoffisiell Homey App"
   },
   "category": [
     "climate"
@@ -35,40 +37,16 @@
     "triggers": [
       {
         "title": {
-          "en": "Heating started"
-        },
-        "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=ensy-climate"
-          }
-        ],
-        "id": "heating_started"
-      },
-      {
-        "title": {
-          "en": "Heating stopped"
-        },
-        "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=ensy-climate"
-          }
-        ],
-        "id": "heating_stopped"
-      },
-      {
-        "title": {
-          "en": "Preset mode changed"
+          "en": "Fan mode changed",
+          "no": "Vifte modus endret"
         },
         "tokens": [
           {
-            "name": "preset_mode",
+            "name": "fan_mode",
             "type": "string",
             "title": {
-              "en": "Preset mode"
+              "en": "Fan mode",
+              "no": "Vifte modus"
             }
           }
         ],
@@ -76,7 +54,59 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=ensy-climate"
+            "filter": "driver_id=inovent"
+          }
+        ],
+        "id": "fan_mode_changed"
+      },
+      {
+        "title": {
+          "en": "Heating started",
+          "no": "Oppvarming startet"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=inovent"
+          }
+        ],
+        "id": "heating_started"
+      },
+      {
+        "title": {
+          "en": "Heating stopped",
+          "no": "Oppvarming stoppet"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=inovent"
+          }
+        ],
+        "id": "heating_stopped"
+      },
+      {
+        "title": {
+          "en": "Preset mode changed",
+          "no": "Forhåndsinnstilt modus endret"
+        },
+        "tokens": [
+          {
+            "name": "preset_mode",
+            "type": "string",
+            "title": {
+              "en": "Preset mode",
+              "no": "Forhåndsinnstilt modus"
+            }
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=inovent"
           }
         ],
         "id": "preset_mode_changed"
@@ -85,50 +115,57 @@
     "conditions": [
       {
         "title": {
-          "en": "Is heating"
+          "en": "Is heating",
+          "no": "Er i oppvarming"
         },
         "titleFormatted": {
-          "en": "!{{Is|Is not}} heating"
+          "en": "!{{Is|Is not}} heating",
+          "no": "!{{Er|Er ikke}} i oppvarming"
         },
         "args": [
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=ensy-climate"
+            "filter": "driver_id=inovent"
           }
         ],
         "id": "is_heating"
       },
       {
         "title": {
-          "en": "Preset mode is"
+          "en": "Preset mode is",
+          "no": "Forhåndsinnstilt modus er"
         },
         "titleFormatted": {
-          "en": "Preset mode !{{is|is not}} [[preset_mode]]"
+          "en": "Preset mode !{{is|is not}} [[preset_mode]]",
+          "no": "Forhåndsinnstilt modus !{{er|er ikke}} [[preset_mode]]"
         },
         "args": [
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=ensy-climate"
+            "filter": "driver_id=inovent"
           },
           {
             "type": "dropdown",
             "name": "preset_mode",
             "title": {
-              "en": "Preset mode"
+              "en": "Preset mode",
+              "no": "Forhåndsinnstilt modus"
             },
             "values": [
               {
                 "id": "heat",
                 "title": {
-                  "en": "Home"
+                  "en": "Home",
+                  "no": "Hjemme"
                 }
               },
               {
                 "id": "off",
                 "title": {
-                  "en": "Away"
+                  "en": "Away",
+                  "no": "Borte"
                 }
               }
             ]
@@ -140,40 +177,92 @@
     "actions": [
       {
         "title": {
-          "en": "Set preset mode"
+          "en": "Set the Fan Mode",
+          "no": "Sett vifte modus"
         },
         "titleFormatted": {
-          "en": "Set preset mode to [[preset_mode]]"
+          "en": "Set the Fan Mode to [[fan_mode]]",
+          "no": "Sett vifte modus til [[fan_mode]]"
         },
         "args": [
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=ensy-climate"
+            "filter": "driver_id=inovent"
+          },
+          {
+            "type": "dropdown",
+            "name": "fan_mode",
+            "title": {
+              "en": "Fan mode",
+              "no": "Vifte modus"
+            },
+            "values": [
+              {
+                "id": "max",
+                "label": {
+                  "en": "Max"
+                }
+              },
+              {
+                "id": "normal",
+                "label": {
+                  "en": "Normal"
+                }
+              },
+              {
+                "id": "min",
+                "label": {
+                  "en": "Min"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "set_fan_mode"
+      },
+      {
+        "title": {
+          "en": "Set preset mode",
+          "no": "Sett forhåndsinnstilt modus"
+        },
+        "titleFormatted": {
+          "en": "Set preset mode to [[preset_mode]]",
+          "no": "Sett forhåndsinnstilt modus til [[preset_mode]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=inovent"
           },
           {
             "type": "dropdown",
             "name": "preset_mode",
             "title": {
-              "en": "Preset mode"
+              "en": "Preset mode",
+              "no": "Forhåndsinnstilt modus"
             },
             "values": [
               {
                 "id": "home",
                 "title": {
-                  "en": "Home"
+                  "en": "Home",
+                  "no": "Hjemme"
                 }
               },
               {
                 "id": "away",
                 "title": {
-                  "en": "Away"
+                  "en": "Away",
+                  "no": "Borte"
                 }
               },
               {
                 "id": "boost",
                 "title": {
-                  "en": "Boost"
+                  "en": "Boost",
+                  "no": "Boost"
                 }
               }
             ]
@@ -186,15 +275,15 @@
   "drivers": [
     {
       "name": {
-        "en": "InoVent AHU Units"
+        "en": "InoVent AHU Units",
+        "no": "InoVent AHU-enheter"
       },
       "class": "airconditioning",
       "capabilities": [
         "target_temperature",
         "measure_temperature",
         "thermostat_mode",
-        "fan_speed",
-        "onoff.heating",
+        "inovent_fan_mode",
         "measure_temperature.extract",
         "measure_temperature.exhaust",
         "measure_temperature.outside",
@@ -215,40 +304,47 @@
             {
               "id": "heat",
               "title": {
-                "en": "Heat"
+                "en": "Heat",
+                "no": "Varme"
               }
             },
             {
               "id": "off",
               "title": {
-                "en": "Away"
+                "en": "Away",
+                "no": "Borte"
               }
             }
           ]
         },
         "measure_temperature.extract": {
           "title": {
-            "en": "Extract Temperature"
+            "en": "Extract Temperature",
+            "no": "Uttrekks temperatur"
           }
         },
         "measure_temperature.exhaust": {
           "title": {
-            "en": "Exhaust Temperature"
+            "en": "Exhaust Temperature",
+            "no": "Uttrekks temperatur"
           }
         },
         "measure_temperature.outside": {
           "title": {
-            "en": "Outside Temperature"
+            "en": "Outside Temperature",
+            "no": "Utetemperatur"
           }
         },
         "measure_temperature.heater": {
           "title": {
-            "en": "Heater Temperature"
+            "en": "Heater Temperature",
+            "no": "Varmeapparat temperatur"
           }
         },
         "onoff.heating": {
           "title": {
-            "en": "Turn on/off"
+            "en": "Turn on/off",
+            "no": "Slå på/av"
           }
         }
       },
@@ -270,5 +366,41 @@
       ],
       "id": "inovent"
     }
-  ]
+  ],
+  "capabilities": {
+    "inovent_fan_mode": {
+      "type": "enum",
+      "title": {
+        "en": "Fan Mode",
+        "no": "Vifte modus"
+      },
+      "values": [
+        {
+          "id": "max",
+          "title": {
+            "en": "Max",
+            "no": "Maks"
+          }
+        },
+        {
+          "id": "normal",
+          "title": {
+            "en": "Normal",
+            "no": "Normal"
+          }
+        },
+        {
+          "id": "min",
+          "title": {
+            "en": "Min",
+            "no": "Min"
+          }
+        }
+      ],
+      "color": "#0091FF",
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker"
+    }
+  }
 }

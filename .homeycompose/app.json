@@ -1,6 +1,6 @@
 {
   "id": "com.rein.ensy",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "compatibility": ">=12.4.0",
   "sdk": 3,
   "platforms": [
@@ -13,14 +13,16 @@
     "url": "https://github.com/gawdfrey/ensy-homey/issues"
   },
   "name": {
-    "en": "Ensy Ventilation"
+    "en": "Ensy Ventilation",
+    "no": "Ensy Ventilasjon"
   },
   "images": {
     "small": "/assets/images/small.png",
     "large": "/assets/images/large.png"
   },
   "description": {
-    "en": "Ventilate your homes with InoVent ventilation from Ensy. Unofficial Homey App"
+    "en": "Ventilate your homes with InoVent ventilation from Ensy. Unofficial Homey App",
+    "no": "Ventiler hjemmet ditt med InoVent ventilasjon fra Ensy. Uoffisiell Homey App"
   },
   "category": [
     "climate"
