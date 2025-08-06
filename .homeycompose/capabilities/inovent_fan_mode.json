@@ -1,0 +1,34 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Fan Mode",
+    "no": "Vifte modus"
+  },
+  "values": [
+    {
+      "id": "max",
+      "title": {
+        "en": "Max",
+        "no": "Maks"
+      }
+    },
+    {
+      "id": "normal",
+      "title": {
+        "en": "Normal",
+        "no": "Normal"
+      }
+    },
+    {
+      "id": "min",
+      "title": {
+        "en": "Min",
+        "no": "Min"
+      }
+    }
+  ],
+  "color": "#0091FF",
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker"
+}

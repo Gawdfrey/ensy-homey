@@ -1,12 +1,13 @@
 {
   "title": {
-    "en": "Heating stopped"
+    "en": "Heating stopped",
+    "no": "Oppvarming stoppet"
   },
   "args": [
     {
       "type": "device",
       "name": "device",
-      "filter": "driver_id=ensy-climate"
+      "filter": "driver_id=inovent"
     }
   ]
 }

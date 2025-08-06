@@ -1,14 +1,14 @@
 {
   "name": {
-    "en": "InoVent AHU Units"
+    "en": "InoVent AHU Units",
+    "no": "InoVent AHU-enheter"
   },
   "class": "airconditioning",
   "capabilities": [
     "target_temperature",
     "measure_temperature",
     "thermostat_mode",
-    "fan_speed",
-    "onoff.heating",
+    "inovent_fan_mode",
     "measure_temperature.extract",
     "measure_temperature.exhaust",
     "measure_temperature.outside",
@@ -29,40 +29,47 @@
         {
           "id": "heat",
           "title": {
-            "en": "Heat"
+            "en": "Heat",
+            "no": "Varme"
           }
         },
         {
           "id": "off",
           "title": {
-            "en": "Away"
+            "en": "Away",
+            "no": "Borte"
           }
         }
       ]
     },
     "measure_temperature.extract": {
       "title": {
-        "en": "Extract Temperature"
+        "en": "Extract Temperature",
+        "no": "Uttrekks temperatur"
       }
     },
     "measure_temperature.exhaust": {
       "title": {
-        "en": "Exhaust Temperature"
+        "en": "Exhaust Temperature",
+        "no": "Uttrekks temperatur"
       }
     },
     "measure_temperature.outside": {
       "title": {
-        "en": "Outside Temperature"
+        "en": "Outside Temperature",
+        "no": "Utetemperatur"
       }
     },
     "measure_temperature.heater": {
       "title": {
-        "en": "Heater Temperature"
+        "en": "Heater Temperature",
+        "no": "Varmeapparat temperatur"
       }
     },
     "onoff.heating": {
       "title": {
-        "en": "Turn on/off"
+        "en": "Turn on/off",
+        "no": "Slå på/av"
       }
     }
   },

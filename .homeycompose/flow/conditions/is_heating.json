@@ -1,15 +1,17 @@
 {
   "title": {
-    "en": "Is heating"
+    "en": "Is heating",
+    "no": "Er i oppvarming"
   },
   "titleFormatted": {
-    "en": "!{{Is|Is not}} heating"
+    "en": "!{{Is|Is not}} heating",
+    "no": "!{{Er|Er ikke}} i oppvarming"
   },
   "args": [
     {
       "type": "device",
       "name": "device",
-      "filter": "driver_id=ensy-climate"
+      "filter": "driver_id=inovent"
     }
   ]
 }

@@ -1,0 +1,45 @@
+{
+  "title": {
+    "en": "Set the Fan Mode",
+    "no": "Sett vifte modus"
+  },
+  "titleFormatted": {
+    "en": "Set the Fan Mode to [[fan_mode]]",
+    "no": "Sett vifte modus til [[fan_mode]]"
+  },
+  "args": [
+     {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=inovent"
+    },
+    {
+      "type": "dropdown",
+      "name": "fan_mode",
+      "title": {
+        "en": "Fan mode",
+        "no": "Vifte modus"
+      },
+      "values": [
+        {
+          "id": "max",
+          "label": {
+            "en": "Max"
+          }
+        },
+        {
+          "id": "normal",
+          "label": {
+            "en": "Normal"
+          }
+        },
+        {
+          "id": "min",
+          "label": {
+            "en": "Min"
+          }
+        }
+      ]
+    }
+  ]
+}

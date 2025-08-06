@@ -2,8 +2,9 @@ import Homey from "homey";
 import {
 	EnsyClient,
 	type EnsyState,
+	FAN_MODE,
 	type FanMode,
-	PresetMode,
+	PRESET_MODE,
 } from "../../lib/ensy-client.js";
 
 export = class InoventVentilationDevice extends Homey.Device {
@@ -47,7 +48,7 @@ export = class InoventVentilationDevice extends Homey.Device {
 			this.onThermostatModeChanged.bind(this),
 		);
 		this.registerCapabilityListener(
-			"fan_speed",
+			"inovent_fan_mode",
 			this.onFanSpeedChanged.bind(this),
 		);
 		this.registerCapabilityListener(
@@ -81,10 +82,10 @@ export = class InoventVentilationDevice extends Homey.Device {
 			const previousMode = previousState?.presetMode;
 			let thermostatMode = "heat";
 			switch (state.presetMode) {
-				case PresetMode.AWAY:
+				case PRESET_MODE.AWAY:
 					thermostatMode = "off";
 					break;
-				case PresetMode.BOOST:
+				case PRESET_MODE.BOOST:
 					thermostatMode = "heat";
 					break;
 				default:
@@ -102,8 +103,28 @@ export = class InoventVentilationDevice extends Homey.Device {
 
 		// Update fan speed
 		if (state.fanMode !== undefined) {
-			const fanSpeed = state.fanMode / 3; // Convert 1-3 to 0.33-1.0
-			this.setCapabilityValue("fan_speed", fanSpeed);
+			let fanModeString: "min" | "normal" | "max";
+			switch (state.fanMode) {
+				case FAN_MODE.MIN:
+					fanModeString = "min";
+					break;
+				case FAN_MODE.NORMAL:
+					fanModeString = "normal";
+					break;
+				case FAN_MODE.MAX:
+					fanModeString = "max";
+					break;
+				default:
+					fanModeString = "normal"; // Default to normal if unknown
+			}
+			this.setCapabilityValue("inovent_fan_mode", fanModeString);
+
+			const previousFanMode = previousState?.fanMode;
+			if (previousFanMode !== state.fanMode) {
+				this.homey.flow
+					.getDeviceTriggerCard("fan_mode_changed")
+					.trigger(this, { fan_mode: fanModeString });
+			}
 		}
 
 		// Update current temperature (use supply temperature as room temperature)
@@ -114,8 +135,6 @@ export = class InoventVentilationDevice extends Homey.Device {
 		// Update heating indicator and trigger heating events
 		if (state.isHeating !== undefined) {
 			const previousHeating = this.getCapabilityValue("onoff");
-			this.setCapabilityValue("onoff.heating", state.isHeating);
-
 			if (previousHeating !== state.isHeating) {
 				if (state.isHeating) {
 					this.homey.flow.getDeviceTriggerCard("heating_started").trigger(this);
@@ -124,7 +143,6 @@ export = class InoventVentilationDevice extends Homey.Device {
 				}
 			}
 		}
-
 		// Update individual temperature sensors
 		if (state.temperatureExtract !== undefined) {
 			this.setCapabilityValue(
@@ -168,13 +186,13 @@ export = class InoventVentilationDevice extends Homey.Device {
 			try {
 				switch (value) {
 					case "off":
-						this.ensyClient.setPresetMode(PresetMode.AWAY);
+						this.ensyClient.setPresetMode(PRESET_MODE.AWAY);
 						break;
 					case "heat":
-						this.ensyClient.setPresetMode(PresetMode.HOME);
+						this.ensyClient.setPresetMode(PRESET_MODE.HOME);
 						break;
 					default:
-						this.ensyClient.setPresetMode(PresetMode.HOME);
+						this.ensyClient.setPresetMode(PRESET_MODE.HOME);
 				}
 			} catch (error) {
 				this.error("Failed to set thermostat mode:", error);
@@ -183,14 +201,23 @@ export = class InoventVentilationDevice extends Homey.Device {
 		}
 	}
 
-	private async onFanSpeedChanged(value: number) {
+	private async onFanSpeedChanged(value: "min" | "normal" | "max") {
 		if (this.ensyClient) {
 			try {
-				// Convert 0.33-1.0 back to 1-3
-				const fanMode = Math.max(
-					1,
-					Math.min(3, Math.round(value * 3)),
-				) as FanMode;
+				let fanMode: FanMode;
+				switch (value) {
+					case "min":
+						fanMode = FAN_MODE.MIN;
+						break;
+					case "normal":
+						fanMode = FAN_MODE.NORMAL;
+						break;
+					case "max":
+						fanMode = FAN_MODE.MAX;
+						break;
+					default:
+						fanMode = FAN_MODE.NORMAL; // Default to normal if unknown
+				}
 				this.ensyClient.setFanMode(fanMode);
 			} catch (error) {
 				this.error("Failed to set fan speed:", error);
@@ -214,13 +241,29 @@ export = class InoventVentilationDevice extends Homey.Device {
 		if (this.ensyClient) {
 			switch (presetMode) {
 				case "home":
-					this.ensyClient.setPresetMode(PresetMode.HOME);
+					this.ensyClient.setPresetMode(PRESET_MODE.HOME);
 					break;
 				case "away":
-					this.ensyClient.setPresetMode(PresetMode.AWAY);
+					this.ensyClient.setPresetMode(PRESET_MODE.AWAY);
 					break;
 				case "boost":
-					this.ensyClient.setPresetMode(PresetMode.BOOST);
+					this.ensyClient.setPresetMode(PRESET_MODE.BOOST);
+					break;
+			}
+		}
+	}
+
+	async setFanModeAction(fanMode: string) {
+		if (this.ensyClient) {
+			switch (fanMode) {
+				case "min":
+					this.ensyClient.setFanMode(FAN_MODE.MIN);
+					break;
+				case "normal":
+					this.ensyClient.setFanMode(FAN_MODE.NORMAL);
+					break;
+				case "max":
+					this.ensyClient.setFanMode(FAN_MODE.MAX);
 					break;
 			}
 		}

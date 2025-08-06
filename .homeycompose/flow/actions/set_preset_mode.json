@@ -1,39 +1,45 @@
 {
   "title": {
-    "en": "Set preset mode"
+    "en": "Set preset mode",
+    "no": "Sett forhåndsinnstilt modus"
   },
   "titleFormatted": {
-    "en": "Set preset mode to [[preset_mode]]"
+    "en": "Set preset mode to [[preset_mode]]",
+    "no": "Sett forhåndsinnstilt modus til [[preset_mode]]"
   },
   "args": [
     {
       "type": "device",
       "name": "device",
-      "filter": "driver_id=ensy-climate"
+      "filter": "driver_id=inovent"
     },
     {
       "type": "dropdown",
       "name": "preset_mode",
       "title": {
-        "en": "Preset mode"
+        "en": "Preset mode",
+        "no": "Forhåndsinnstilt modus"
       },
       "values": [
         {
           "id": "home",
           "title": {
-            "en": "Home"
+            "en": "Home",
+            "no": "Hjemme"
           }
         },
         {
-          "id": "away", 
+          "id": "away",
           "title": {
-            "en": "Away"
+            "en": "Away",
+            "no": "Borte"
           }
         },
         {
           "id": "boost",
           "title": {
-            "en": "Boost"
+            "en": "Boost",
+            "no": "Boost"
           }
         }
       ]

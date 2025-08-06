@@ -1,15 +1,15 @@
 {
   "title": {
-    "en": "Preset mode changed",
-    "no": "Forhåndsinnstilt modus endret"
+    "en": "Fan mode changed",
+    "no": "Vifte modus endret"
   },
-  "tokens": [
+    "tokens": [
     {
-      "name": "preset_mode",
+      "name": "fan_mode",
       "type": "string",
       "title": {
-        "en": "Preset mode",
-        "no": "Forhåndsinnstilt modus"
+        "en": "Fan mode",
+        "no": "Vifte modus"
       }
     }
   ],

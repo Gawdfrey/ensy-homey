@@ -1,33 +1,38 @@
 {
   "title": {
-    "en": "Preset mode is"
+    "en": "Preset mode is",
+    "no": "Forhåndsinnstilt modus er"
   },
   "titleFormatted": {
-    "en": "Preset mode !{{is|is not}} [[preset_mode]]"
+    "en": "Preset mode !{{is|is not}} [[preset_mode]]",
+    "no": "Forhåndsinnstilt modus !{{er|er ikke}} [[preset_mode]]"
   },
   "args": [
     {
       "type": "device",
       "name": "device",
-      "filter": "driver_id=ensy-climate"
+      "filter": "driver_id=inovent"
     },
     {
       "type": "dropdown",
       "name": "preset_mode",
       "title": {
-        "en": "Preset mode"
+        "en": "Preset mode",
+        "no": "Forhåndsinnstilt modus"
       },
       "values": [
         {
           "id": "heat",
           "title": {
-            "en": "Home"
+            "en": "Home",
+            "no": "Hjemme"
           }
         },
         {
           "id": "off",
           "title": {
-            "en": "Away"
+            "en": "Away",
+            "no": "Borte"
           }
         }
       ]

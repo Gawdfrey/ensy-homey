@@ -1,12 +1,13 @@
 {
   "title": {
-    "en": "Heating started"
+    "en": "Heating started",
+    "no": "Oppvarming startet"
   },
   "args": [
     {
       "type": "device",
       "name": "device",
-      "filter": "driver_id=ensy-climate"
+      "filter": "driver_id=inovent"
     }
   ]
 }

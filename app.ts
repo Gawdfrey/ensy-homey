@@ -19,6 +19,11 @@ module.exports = class EnsyHomeyApp extends Homey.App {
 			await args.device.setPresetModeAction(args.preset_mode);
 		});
 
+		const setFanModeAction = this.homey.flow.getActionCard("set_fan_mode");
+		setFanModeAction.registerRunListener(async (args) => {
+			await args.device.setFanModeAction(args.fan_mode);
+		});
+
 		// Condition cards
 		const isHeatingCondition = this.homey.flow.getConditionCard("is_heating");
 		isHeatingCondition.registerRunListener(async (args) => {
