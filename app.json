@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.rein.ensy",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "compatibility": ">=12.4.0",
   "sdk": 3,
   "platforms": [
@@ -58,120 +58,6 @@
           }
         ],
         "id": "fan_mode_changed"
-      },
-      {
-        "title": {
-          "en": "Heating started",
-          "no": "Oppvarming startet"
-        },
-        "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=inovent"
-          }
-        ],
-        "id": "heating_started"
-      },
-      {
-        "title": {
-          "en": "Heating stopped",
-          "no": "Oppvarming stoppet"
-        },
-        "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=inovent"
-          }
-        ],
-        "id": "heating_stopped"
-      },
-      {
-        "title": {
-          "en": "Preset mode changed",
-          "no": "Forhåndsinnstilt modus endret"
-        },
-        "tokens": [
-          {
-            "name": "preset_mode",
-            "type": "string",
-            "title": {
-              "en": "Preset mode",
-              "no": "Forhåndsinnstilt modus"
-            }
-          }
-        ],
-        "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=inovent"
-          }
-        ],
-        "id": "preset_mode_changed"
-      }
-    ],
-    "conditions": [
-      {
-        "title": {
-          "en": "Is heating",
-          "no": "Er i oppvarming"
-        },
-        "titleFormatted": {
-          "en": "!{{Is|Is not}} heating",
-          "no": "!{{Er|Er ikke}} i oppvarming"
-        },
-        "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=inovent"
-          }
-        ],
-        "id": "is_heating"
-      },
-      {
-        "title": {
-          "en": "Preset mode is",
-          "no": "Forhåndsinnstilt modus er"
-        },
-        "titleFormatted": {
-          "en": "Preset mode !{{is|is not}} [[preset_mode]]",
-          "no": "Forhåndsinnstilt modus !{{er|er ikke}} [[preset_mode]]"
-        },
-        "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=inovent"
-          },
-          {
-            "type": "dropdown",
-            "name": "preset_mode",
-            "title": {
-              "en": "Preset mode",
-              "no": "Forhåndsinnstilt modus"
-            },
-            "values": [
-              {
-                "id": "heat",
-                "title": {
-                  "en": "Home",
-                  "no": "Hjemme"
-                }
-              },
-              {
-                "id": "off",
-                "title": {
-                  "en": "Away",
-                  "no": "Borte"
-                }
-              }
-            ]
-          }
-        ],
-        "id": "preset_mode_is"
       }
     ],
     "actions": [
@@ -220,55 +106,6 @@
           }
         ],
         "id": "set_fan_mode"
-      },
-      {
-        "title": {
-          "en": "Set preset mode",
-          "no": "Sett forhåndsinnstilt modus"
-        },
-        "titleFormatted": {
-          "en": "Set preset mode to [[preset_mode]]",
-          "no": "Sett forhåndsinnstilt modus til [[preset_mode]]"
-        },
-        "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=inovent"
-          },
-          {
-            "type": "dropdown",
-            "name": "preset_mode",
-            "title": {
-              "en": "Preset mode",
-              "no": "Forhåndsinnstilt modus"
-            },
-            "values": [
-              {
-                "id": "home",
-                "title": {
-                  "en": "Home",
-                  "no": "Hjemme"
-                }
-              },
-              {
-                "id": "away",
-                "title": {
-                  "en": "Away",
-                  "no": "Borte"
-                }
-              },
-              {
-                "id": "boost",
-                "title": {
-                  "en": "Boost",
-                  "no": "Boost"
-                }
-              }
-            ]
-          }
-        ],
-        "id": "set_preset_mode"
       }
     ]
   },
@@ -278,7 +115,7 @@
         "en": "InoVent AHU Units",
         "no": "InoVent AHU-enheter"
       },
-      "class": "airconditioning",
+      "class": "airtreatment",
       "platforms": [
         "local"
       ],
@@ -288,13 +125,13 @@
       "capabilities": [
         "target_temperature",
         "measure_temperature",
-        "thermostat_mode",
         "inovent_fan_mode",
         "measure_temperature.extract",
         "measure_temperature.exhaust",
         "measure_temperature.outside",
         "measure_temperature.heater",
-        "measure_humidity"
+        "measure_humidity",
+        "alarm_generic"
       ],
       "images": {
         "small": "/drivers/inovent/assets/images/small.png",
@@ -306,28 +143,10 @@
           "max": 26,
           "step": 0.5
         },
-        "thermostat_mode": {
-          "values": [
-            {
-              "id": "heat",
-              "title": {
-                "en": "Heat",
-                "no": "Varme"
-              }
-            },
-            {
-              "id": "off",
-              "title": {
-                "en": "Away",
-                "no": "Borte"
-              }
-            }
-          ]
-        },
         "measure_temperature.extract": {
           "title": {
             "en": "Extract Temperature",
-            "no": "Uttrekks temperatur"
+            "no": "Avtrekkstemperatur"
           }
         },
         "measure_temperature.exhaust": {
@@ -345,7 +164,19 @@
         "measure_temperature.heater": {
           "title": {
             "en": "Heater Temperature",
-            "no": "Varmeapparat temperatur"
+            "no": "Varmebatteri temperatur"
+          }
+        },
+        "alarm_generic": {
+          "title": {
+            "en": "Alarm",
+            "no": "Alarm"
+          }
+        },
+        "measure_temperature": {
+          "title": {
+            "en": "Supply Temperature",
+            "no": "Tilluftstemperatur"
           }
         }
       },

@@ -3,7 +3,7 @@
     "en": "InoVent AHU Units",
     "no": "InoVent AHU-enheter"
   },
-  "class": "airconditioning",
+  "class": "airtreatment",
   "platforms": [
     "local"
   ],
@@ -13,13 +13,13 @@
   "capabilities": [
     "target_temperature",
     "measure_temperature",
-    "thermostat_mode",
     "inovent_fan_mode",
     "measure_temperature.extract",
     "measure_temperature.exhaust",
     "measure_temperature.outside",
     "measure_temperature.heater",
-    "measure_humidity"
+    "measure_humidity",
+    "alarm_generic"
   ],
   "images": {
     "small": "/drivers/inovent/assets/images/small.png",
@@ -31,28 +31,10 @@
       "max": 26,
       "step": 0.5
     },
-    "thermostat_mode": {
-      "values": [
-        {
-          "id": "heat",
-          "title": {
-            "en": "Heat",
-            "no": "Varme"
-          }
-        },
-        {
-          "id": "off",
-          "title": {
-            "en": "Away",
-            "no": "Borte"
-          }
-        }
-      ]
-    },
     "measure_temperature.extract": {
       "title": {
         "en": "Extract Temperature",
-        "no": "Uttrekks temperatur"
+        "no": "Avtrekkstemperatur"
       }
     },
     "measure_temperature.exhaust": {
@@ -70,7 +52,19 @@
     "measure_temperature.heater": {
       "title": {
         "en": "Heater Temperature",
-        "no": "Varmeapparat temperatur"
+        "no": "Varmebatteri temperatur"
+      }
+    },
+    "alarm_generic": {
+      "title": {
+        "en": "Alarm",
+        "no": "Alarm"
+      }
+    },
+    "measure_temperature": {
+      "title": {
+        "en": "Supply Temperature",
+        "no": "Tilluftstemperatur"
       }
     }
   },

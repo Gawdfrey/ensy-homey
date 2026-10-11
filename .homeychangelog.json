@@ -12,5 +12,9 @@
   "0.2.1": {
     "en": "Fan and temperature changes now reach the unit reliably and within seconds. Clearer error messages when a change fails.",
     "no": "Endringer av vifte og temperatur når nå aggregatet pålitelig og i løpet av sekunder. Tydeligere feilmeldinger når en endring feiler."
+  },
+  "0.3.0": {
+    "en": "Shown as an air treatment device. New alarm indicator (for example filter change). Removed away/boost and heating cards that BITZER Smart Connect cannot control. Smaller app.",
+    "no": "Vises som luftbehandlingsenhet. Ny alarmindikator (for eksempel filterbytte). Fjernet borte/boost og varmekort som BITZER Smart Connect ikke kan styre. Mindre app."
   }
 }

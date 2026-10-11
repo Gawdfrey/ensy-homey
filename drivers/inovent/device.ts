@@ -30,16 +30,24 @@ export = class InoventVentilationDevice extends Homey.Device {
 	async onInit() {
 		this.log("InoVent Ventilation Device has been initialized");
 
-		if (!this.hasCapability("measure_humidity")) {
-			await this.addCapability("measure_humidity");
-		}
-		await this.setCapabilityOptions("target_temperature", { min: 10, max: 26, step: 0.5 });
+		await this.migrate();
 
 		this.registerCapabilityListener("target_temperature", this.onTargetTemperatureChanged.bind(this));
-		this.registerCapabilityListener("thermostat_mode", this.onThermostatModeChanged.bind(this));
 		this.registerCapabilityListener("inovent_fan_mode", this.onFanModeChanged.bind(this));
 
 		await this.connect();
+	}
+
+	/** Bring devices paired by older versions in line with the current driver manifest. */
+	private async migrate() {
+		for (const capability of ["measure_humidity", "alarm_generic"]) {
+			if (!this.hasCapability(capability)) await this.addCapability(capability);
+		}
+		for (const capability of ["thermostat_mode", "onoff.heating"]) {
+			if (this.hasCapability(capability)) await this.removeCapability(capability);
+		}
+		if (this.getClass() !== "airtreatment") await this.setClass("airtreatment");
+		await this.setCapabilityOptions("target_temperature", { min: 10, max: 26, step: 0.5 });
 	}
 
 	/** (Re)connect using the stored BITZER Smart Connect login; also called after a repair. */
@@ -90,6 +98,11 @@ export = class InoventVentilationDevice extends Homey.Device {
 			}
 		}
 
+		const alarm = client.getAlarmCount() > 0;
+		if (this.getCapabilityValue("alarm_generic") !== alarm) {
+			this.setCapabilityValue("alarm_generic", alarm).catch(this.error);
+		}
+
 		const target = client.getValue(PARAM.TARGET_TEMPERATURE);
 		if (target !== undefined && this.getCapabilityValue("target_temperature") !== target) {
 			this.setCapabilityValue("target_temperature", target).catch(this.error);
@@ -112,11 +125,6 @@ export = class InoventVentilationDevice extends Homey.Device {
 	private async onTargetTemperatureChanged(value: number) {
 		const client = this.requireClient();
 		this.runWrite("target temperature", () => client.setTargetTemperature(Math.round(value * 2) / 2));
-	}
-
-	private async onThermostatModeChanged(value: string) {
-		// Away/boost presets have no known BITZER Smart Connect parameter yet.
-		if (value !== "heat") throw new Error(this.homey.__("device.preset_unsupported"));
 	}
 
 	private async onFanModeChanged(value: FanModeId) {
@@ -143,10 +151,6 @@ export = class InoventVentilationDevice extends Homey.Device {
 	}
 
 	// Flow card actions
-	async setPresetModeAction(presetMode: string) {
-		if (presetMode !== "home") throw new Error(this.homey.__("device.preset_unsupported"));
-	}
-
 	async setFanModeAction(fanMode: FanModeId) {
 		await this.requireClient().setFanMode(FAN_MODES[fanMode] ?? FAN_MODE.NORMAL);
 		await this.setCapabilityValue("inovent_fan_mode", fanMode);

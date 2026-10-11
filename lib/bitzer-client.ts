@@ -116,6 +116,7 @@ export class BitzerClient extends EventEmitter {
 	private tokenExpiresAt = 0;
 	private parameters = new Map<string, Parameter>(); // keyed by short key, e.g. "Control.VentSet"
 	private online = false;
+	private alarmCount = 0;
 	private ws?: WebSocket;
 	private hubTimer?: NodeJS.Timeout;
 	private keepaliveTimer?: NodeJS.Timeout;
@@ -171,6 +172,11 @@ export class BitzerClient extends EventEmitter {
 		return Number.isFinite(value) ? value : undefined;
 	}
 
+	/** Number of active alarms (e.g. filter change) the unit reports. */
+	getAlarmCount(): number {
+		return this.alarmCount;
+	}
+
 	isOnline(): boolean {
 		return this.online;
 	}
@@ -193,10 +199,13 @@ export class BitzerClient extends EventEmitter {
 	// -- reads --------------------------------------------------------------------
 
 	async refresh(): Promise<void> {
-		const config = await this.getJson(
-			`${WWW_BASE}/Configurations/AsJSON/?deviceId=${this.requireDeviceId()}&_=${Date.now()}`,
-			{ "X-Requested-With": "XMLHttpRequest" },
-		);
+		const [config, device] = await Promise.all([
+			this.getJson(`${WWW_BASE}/Configurations/AsJSON/?deviceId=${this.requireDeviceId()}&_=${Date.now()}`, {
+				"X-Requested-With": "XMLHttpRequest",
+			}),
+			this.getJson(`${API_BASE}/Device/GetDevice/${this.requireDeviceId()}`),
+		]);
+		this.alarmCount = Number(device?.alarmsCount) || 0;
 		const parameters = new Map<string, Parameter>();
 		for (const group of config?.groups ?? []) {
 			for (const p of group.viewParameters ?? []) {

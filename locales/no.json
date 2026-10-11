@@ -6,7 +6,6 @@
     "repair_required": "Logg inn i BITZER Smart Connect: åpne enhetsinnstillingene og velg Reparer.",
     "offline": "Ventilasjonsaggregatet er frakoblet i BITZER Smart Connect.",
     "connection_failed": "Kunne ikke koble til BITZER Smart Connect.",
-    "preset_unsupported": "Borte/boost støttes ikke via BITZER Smart Connect ennå.",
     "write_failed": "Kunne ikke endre innstillingen:"
   }
 }
