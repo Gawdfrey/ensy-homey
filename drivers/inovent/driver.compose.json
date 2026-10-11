@@ -4,6 +4,12 @@
     "no": "InoVent AHU-enheter"
   },
   "class": "airconditioning",
+  "platforms": [
+    "local"
+  ],
+  "connectivity": [
+    "cloud"
+  ],
   "capabilities": [
     "target_temperature",
     "measure_temperature",
