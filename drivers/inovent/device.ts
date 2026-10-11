@@ -1,271 +1,139 @@
 import Homey from "homey";
-import {
-	EnsyClient,
-	type EnsyState,
-	FAN_MODE,
-	type FanMode,
-	PRESET_MODE,
-} from "../../lib/ensy-client.js";
+import { BitzerClient, FAN_MODE, type FanMode, PARAM } from "../../lib/bitzer-client.js";
+
+type FanModeId = "min" | "normal" | "max";
+
+const FAN_MODE_IDS: Record<number, FanModeId> = {
+	[FAN_MODE.MIN]: "min",
+	[FAN_MODE.NORMAL]: "normal",
+	[FAN_MODE.MAX]: "max",
+};
+
+const FAN_MODES: Record<FanModeId, FanMode> = {
+	min: FAN_MODE.MIN,
+	normal: FAN_MODE.NORMAL,
+	max: FAN_MODE.MAX,
+};
+
+const SENSORS: [capability: string, param: string][] = [
+	["measure_temperature", PARAM.SUPPLY],
+	["measure_temperature.extract", PARAM.EXTRACT],
+	["measure_temperature.exhaust", PARAM.EXHAUST],
+	["measure_temperature.outside", PARAM.OUTSIDE],
+	["measure_temperature.heater", PARAM.HEATER],
+	["measure_humidity", PARAM.HUMIDITY],
+];
 
 export = class InoventVentilationDevice extends Homey.Device {
-	private ensyClient?: EnsyClient;
+	private client?: BitzerClient;
 
 	async onInit() {
-		const data = this.getData();
 		this.log("InoVent Ventilation Device has been initialized");
 
-		// Initialize client
-		this.ensyClient = new EnsyClient(data.mac_address);
+		if (!this.hasCapability("measure_humidity")) {
+			await this.addCapability("measure_humidity");
+		}
+		await this.setCapabilityOptions("target_temperature", { min: 10, max: 26, step: 0.5 });
 
-		// Set up event listeners
-		this.ensyClient.on(
-			"stateUpdate",
-			(state: EnsyState, previousState: EnsyState) => {
-				this.updateCapabilityValues(state, previousState);
-			},
-		);
+		this.registerCapabilityListener("target_temperature", this.onTargetTemperatureChanged.bind(this));
+		this.registerCapabilityListener("thermostat_mode", this.onThermostatModeChanged.bind(this));
+		this.registerCapabilityListener("inovent_fan_mode", this.onFanModeChanged.bind(this));
 
-		this.ensyClient.on("connected", () => {
-			this.setAvailable();
-		});
+		await this.connect();
+	}
 
-		this.ensyClient.on("disconnected", () => {
-			this.setUnavailable("Device disconnected");
-		});
+	/** (Re)connect using the stored BITZER Smart Connect login; also called after a repair. */
+	async connect() {
+		this.client?.stop();
+		this.client = undefined;
 
-		this.ensyClient.on("error", (error) => {
-			this.error("Ensy client error:", error);
-			this.setUnavailable("Connection error");
-		});
+		const username = this.getStoreValue("username");
+		const password = this.getStoreValue("password");
+		const deviceId = this.getStoreValue("deviceId");
+		if (!username || !password || deviceId === undefined) {
+			// Devices paired with the old Ensy MQTT cloud must be repaired with a Bitzer login.
+			await this.setUnavailable(this.homey.__("device.repair_required"));
+			return;
+		}
 
-		// Register capability listeners
-		this.registerCapabilityListener(
-			"target_temperature",
-			this.onTargetTemperatureChanged.bind(this),
-		);
-		this.registerCapabilityListener(
-			"thermostat_mode",
-			this.onThermostatModeChanged.bind(this),
-		);
-		this.registerCapabilityListener(
-			"inovent_fan_mode",
-			this.onFanSpeedChanged.bind(this),
-		);
-		this.registerCapabilityListener(
-			"onoff.heating",
-			this.onHeatingChanged.bind(this),
-		);
+		const client = new BitzerClient(username, password, deviceId);
+		this.client = client;
+		client.on("update", () => this.updateCapabilityValues());
+		client.on("online", () => this.setAvailable().catch(this.error));
+		client.on("offline", () => this.setUnavailable(this.homey.__("device.offline")).catch(this.error));
+		client.on("error", (error) => this.error("Bitzer client error:", error));
 
-		// Connect to device
 		try {
-			await this.ensyClient.connect();
+			await client.start();
 		} catch (error) {
-			this.error("Failed to connect to Ensy device:", error);
-			this.setUnavailable("Connection failed");
+			this.error("Failed to connect to BITZER Smart Connect:", error);
+			await this.setUnavailable(this.homey.__("device.connection_failed"));
 		}
 	}
 
 	async onDeleted() {
-		if (this.ensyClient) {
-			this.ensyClient.disconnect();
-		}
+		this.client?.stop();
 	}
 
-	private updateCapabilityValues(state: EnsyState, previousState?: EnsyState) {
-		// Update temperature
-		if (state.temperatureTarget !== undefined) {
-			this.setCapabilityValue("target_temperature", state.temperatureTarget);
-		}
+	async onUninit() {
+		this.client?.stop();
+	}
 
-		// Update thermostat mode based on preset
-		if (state.presetMode !== undefined) {
-			const previousMode = previousState?.presetMode;
-			let thermostatMode = "heat";
-			switch (state.presetMode) {
-				case PRESET_MODE.AWAY:
-					thermostatMode = "off";
-					break;
-				case PRESET_MODE.BOOST:
-					thermostatMode = "heat";
-					break;
-				default:
-					thermostatMode = "heat";
-			}
-			this.setCapabilityValue("thermostat_mode", thermostatMode);
+	private updateCapabilityValues() {
+		const client = this.client;
+		if (!client) return;
 
-			// Trigger preset mode changed if changed
-			if (previousMode && previousMode !== state.presetMode) {
-				this.homey.flow
-					.getDeviceTriggerCard("preset_mode_changed")
-					.trigger(this, { preset_mode: state.presetMode });
+		for (const [capability, param] of SENSORS) {
+			const value = client.getValue(param);
+			if (value !== undefined && this.getCapabilityValue(capability) !== value) {
+				this.setCapabilityValue(capability, value).catch(this.error);
 			}
 		}
 
-		// Update fan speed
-		if (state.fanMode !== undefined) {
-			let fanModeString: "min" | "normal" | "max";
-			switch (state.fanMode) {
-				case FAN_MODE.MIN:
-					fanModeString = "min";
-					break;
-				case FAN_MODE.NORMAL:
-					fanModeString = "normal";
-					break;
-				case FAN_MODE.MAX:
-					fanModeString = "max";
-					break;
-				default:
-					fanModeString = "normal"; // Default to normal if unknown
-			}
-			this.setCapabilityValue("inovent_fan_mode", fanModeString);
+		const target = client.getValue(PARAM.TARGET_TEMPERATURE);
+		if (target !== undefined && this.getCapabilityValue("target_temperature") !== target) {
+			this.setCapabilityValue("target_temperature", target).catch(this.error);
+		}
 
-			const previousFanMode = previousState?.fanMode;
-			if (previousFanMode !== state.fanMode) {
+		const fan = client.getValue(PARAM.FAN);
+		const fanMode = fan === undefined ? undefined : FAN_MODE_IDS[fan];
+		if (fanMode && this.getCapabilityValue("inovent_fan_mode") !== fanMode) {
+			const previous = this.getCapabilityValue("inovent_fan_mode");
+			this.setCapabilityValue("inovent_fan_mode", fanMode).catch(this.error);
+			if (previous !== null) {
 				this.homey.flow
 					.getDeviceTriggerCard("fan_mode_changed")
-					.trigger(this, { fan_mode: fanModeString });
+					.trigger(this, { fan_mode: fanMode })
+					.catch(this.error);
 			}
-		}
-
-		// Update current temperature (use supply temperature as room temperature)
-		if (state.temperatureSupply !== undefined) {
-			this.setCapabilityValue("measure_temperature", state.temperatureSupply);
-		}
-
-		// Update heating indicator and trigger heating events
-		if (state.isHeating !== undefined) {
-			const previousHeating = this.getCapabilityValue("onoff");
-			if (previousHeating !== state.isHeating) {
-				if (state.isHeating) {
-					this.homey.flow.getDeviceTriggerCard("heating_started").trigger(this);
-				} else {
-					this.homey.flow.getDeviceTriggerCard("heating_stopped").trigger(this);
-				}
-			}
-		}
-		// Update individual temperature sensors
-		if (state.temperatureExtract !== undefined) {
-			this.setCapabilityValue(
-				"measure_temperature.extract",
-				state.temperatureExtract,
-			);
-		}
-		if (state.temperatureExhaust !== undefined) {
-			this.setCapabilityValue(
-				"measure_temperature.exhaust",
-				state.temperatureExhaust,
-			);
-		}
-		if (state.temperatureOutside !== undefined) {
-			this.setCapabilityValue(
-				"measure_temperature.outside",
-				state.temperatureOutside,
-			);
-		}
-		if (state.temperatureHeater !== undefined) {
-			this.setCapabilityValue(
-				"measure_temperature.heater",
-				state.temperatureHeater,
-			);
 		}
 	}
 
 	private async onTargetTemperatureChanged(value: number) {
-		if (this.ensyClient) {
-			try {
-				this.ensyClient.setTargetTemperature(Math.round(value));
-			} catch (error) {
-				this.error("Failed to set target temperature:", error);
-				throw error;
-			}
-		}
+		await this.requireClient().setTargetTemperature(Math.round(value * 2) / 2);
 	}
 
 	private async onThermostatModeChanged(value: string) {
-		if (this.ensyClient) {
-			try {
-				switch (value) {
-					case "off":
-						this.ensyClient.setPresetMode(PRESET_MODE.AWAY);
-						break;
-					case "heat":
-						this.ensyClient.setPresetMode(PRESET_MODE.HOME);
-						break;
-					default:
-						this.ensyClient.setPresetMode(PRESET_MODE.HOME);
-				}
-			} catch (error) {
-				this.error("Failed to set thermostat mode:", error);
-				throw error;
-			}
-		}
+		// Away/boost presets have no known BITZER Smart Connect parameter yet.
+		if (value !== "heat") throw new Error(this.homey.__("device.preset_unsupported"));
 	}
 
-	private async onFanSpeedChanged(value: "min" | "normal" | "max") {
-		if (this.ensyClient) {
-			try {
-				let fanMode: FanMode;
-				switch (value) {
-					case "min":
-						fanMode = FAN_MODE.MIN;
-						break;
-					case "normal":
-						fanMode = FAN_MODE.NORMAL;
-						break;
-					case "max":
-						fanMode = FAN_MODE.MAX;
-						break;
-					default:
-						fanMode = FAN_MODE.NORMAL; // Default to normal if unknown
-				}
-				this.ensyClient.setFanMode(fanMode);
-			} catch (error) {
-				this.error("Failed to set fan speed:", error);
-				throw error;
-			}
-		}
-	}
-
-	private async onHeatingChanged(value: boolean) {
-		// This is a read-only capability that reflects the device state
-		// We don't send commands to the device for this capability
-		// Just log the attempt for debugging
-		this.log("Heating status change attempt (read-only):", value);
-
-		// Return the current actual state instead of accepting the change
-		return this.getCapabilityValue("onoff.heating");
+	private async onFanModeChanged(value: FanModeId) {
+		await this.requireClient().setFanMode(FAN_MODES[value] ?? FAN_MODE.NORMAL);
 	}
 
 	// Flow card actions
 	async setPresetModeAction(presetMode: string) {
-		if (this.ensyClient) {
-			switch (presetMode) {
-				case "home":
-					this.ensyClient.setPresetMode(PRESET_MODE.HOME);
-					break;
-				case "away":
-					this.ensyClient.setPresetMode(PRESET_MODE.AWAY);
-					break;
-				case "boost":
-					this.ensyClient.setPresetMode(PRESET_MODE.BOOST);
-					break;
-			}
-		}
+		if (presetMode !== "home") throw new Error(this.homey.__("device.preset_unsupported"));
 	}
 
-	async setFanModeAction(fanMode: string) {
-		if (this.ensyClient) {
-			switch (fanMode) {
-				case "min":
-					this.ensyClient.setFanMode(FAN_MODE.MIN);
-					break;
-				case "normal":
-					this.ensyClient.setFanMode(FAN_MODE.NORMAL);
-					break;
-				case "max":
-					this.ensyClient.setFanMode(FAN_MODE.MAX);
-					break;
-			}
-		}
+	async setFanModeAction(fanMode: FanModeId) {
+		await this.onFanModeChanged(fanMode);
+		await this.setCapabilityValue("inovent_fan_mode", fanMode);
+	}
+
+	private requireClient(): BitzerClient {
+		if (!this.client) throw new Error(this.homey.__("device.repair_required"));
+		return this.client;
 	}
 };

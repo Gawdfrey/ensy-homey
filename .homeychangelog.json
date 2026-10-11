@@ -4,5 +4,9 @@
   },
   "0.1.0": {
     "en": "Removed unused heating capability. Changed fan_speed capability for custom enum selector. Added Norwegian translations. Added new trigger and action cards for flows regarding fan mode."
+  },
+  "0.2.0": {
+    "en": "Ensy moved InoVent units to BITZER Smart Connect: the app now logs in with your BITZER Smart Connect account instead of the old Ensy MQTT cloud. Existing devices: open the device and choose Repair to log in. Adds humidity. Away/boost presets are not available yet.",
+    "no": "Ensy har flyttet InoVent-aggregater til BITZER Smart Connect: appen logger nå inn med BITZER Smart Connect-kontoen din i stedet for den gamle Ensy MQTT-skyen. Eksisterende enheter: åpne enheten og velg Reparer for å logge inn. Legger til luftfuktighet. Borte/boost er ikke tilgjengelig ennå."
   }
 }

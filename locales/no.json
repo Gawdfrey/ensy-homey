@@ -1,0 +1,11 @@
+{
+  "pair": {
+    "login_failed": "BITZER Smart Connect avviste e-post eller passord."
+  },
+  "device": {
+    "repair_required": "Logg inn i BITZER Smart Connect: åpne enhetsinnstillingene og velg Reparer.",
+    "offline": "Ventilasjonsaggregatet er frakoblet i BITZER Smart Connect.",
+    "connection_failed": "Kunne ikke koble til BITZER Smart Connect.",
+    "preset_unsupported": "Borte/boost støttes ikke via BITZER Smart Connect ennå."
+  }
+}

@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.rein.ensy",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "compatibility": ">=12.4.0",
   "sdk": 3,
   "platforms": [
@@ -22,8 +22,8 @@
     "large": "/assets/images/large.png"
   },
   "description": {
-    "en": "Ventilate your homes with InoVent ventilation from Ensy. Unofficial Homey App",
-    "no": "Ventiler hjemmet ditt med InoVent ventilasjon fra Ensy. Uoffisiell Homey App"
+    "en": "Control InoVent ventilation from Ensy through BITZER Smart Connect. Unofficial Homey App",
+    "no": "Styr InoVent-ventilasjon fra Ensy via BITZER Smart Connect. Uoffisiell Homey App"
   },
   "category": [
     "climate"
@@ -287,7 +287,8 @@
         "measure_temperature.extract",
         "measure_temperature.exhaust",
         "measure_temperature.outside",
-        "measure_temperature.heater"
+        "measure_temperature.heater",
+        "measure_humidity"
       ],
       "images": {
         "small": "/drivers/inovent/assets/images/small.png",
@@ -295,9 +296,9 @@
       },
       "capabilitiesOptions": {
         "target_temperature": {
-          "min": 15,
+          "min": 10,
           "max": 26,
-          "step": 1
+          "step": 0.5
         },
         "thermostat_mode": {
           "values": [
@@ -326,7 +327,7 @@
         "measure_temperature.exhaust": {
           "title": {
             "en": "Exhaust Temperature",
-            "no": "Uttrekks temperatur"
+            "no": "Avkast temperatur"
           }
         },
         "measure_temperature.outside": {
@@ -340,17 +341,34 @@
             "en": "Heater Temperature",
             "no": "Varmeapparat temperatur"
           }
-        },
-        "onoff.heating": {
-          "title": {
-            "en": "Turn on/off",
-            "no": "Slå på/av"
-          }
         }
       },
       "pair": [
         {
-          "id": "manual_pairing"
+          "id": "login_credentials",
+          "template": "login_credentials",
+          "options": {
+            "logo": "/drivers/inovent/assets/images/small.png",
+            "title": {
+              "en": "BITZER Smart Connect",
+              "no": "BITZER Smart Connect"
+            },
+            "usernameLabel": {
+              "en": "E-mail",
+              "no": "E-post"
+            },
+            "usernamePlaceholder": {
+              "en": "you@example.com"
+            },
+            "passwordLabel": {
+              "en": "Password",
+              "no": "Passord"
+            },
+            "passwordPlaceholder": {
+              "en": "Password",
+              "no": "Passord"
+            }
+          }
         },
         {
           "id": "list_devices",
@@ -362,6 +380,27 @@
         {
           "id": "add_devices",
           "template": "add_devices"
+        }
+      ],
+      "repair": [
+        {
+          "id": "login_credentials",
+          "template": "login_credentials",
+          "options": {
+            "logo": "/drivers/inovent/assets/images/small.png",
+            "title": {
+              "en": "BITZER Smart Connect",
+              "no": "BITZER Smart Connect"
+            },
+            "usernameLabel": {
+              "en": "E-mail",
+              "no": "E-post"
+            },
+            "passwordLabel": {
+              "en": "Password",
+              "no": "Passord"
+            }
+          }
         }
       ],
       "id": "inovent"

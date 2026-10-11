@@ -1,48 +1,62 @@
 import Homey from "homey";
+import { BitzerAuthError, BitzerClient, type BitzerDevice } from "../../lib/bitzer-client.js";
+
+interface Credentials {
+	username: string;
+	password: string;
+}
 
 export = class InoventVentilationDriver extends Homey.Driver {
-  async onInit() {
-    this.log("Ensy Climate Driver has been initialized");
-  }
+	async onInit() {
+		this.log("Ensy Climate Driver has been initialized");
+	}
 
-  async onPair(session: any) {
-    let discoveredDevices: any[] = [];
+	async onPair(session: any) {
+		let credentials: Credentials | undefined;
+		let devices: BitzerDevice[] = [];
 
-    session.setHandler("list_devices", async () => {
-      return discoveredDevices;
-    });
+		session.setHandler("login", async (data: Credentials) => {
+			devices = await this.login(data);
+			credentials = data;
+			return true;
+		});
 
-    session.setHandler(
-      "manual_pairing",
-      async (data: { mac_address: string }) => {
-        const { EnsyClient } = await import("../../lib/ensy-client.js");
+		session.setHandler("list_devices", async () => {
+			if (!credentials) throw new Error("Log in to BITZER Smart Connect first");
+			return devices.map((device) => ({
+				name: device.name,
+				data: { id: `bitzer-${device.id}` },
+				store: { ...credentials, deviceId: device.id },
+			}));
+		});
+	}
 
-        try {
-          this.log("Testing connectivity for device:", data.mac_address);
-          const isValid = await EnsyClient.testConnectivity(data.mac_address);
+	/** Moves an existing (MQTT-era) device to BITZER Smart Connect without changing its ID, so Flows keep working. */
+	async onRepair(session: any, device: any) {
+		session.setHandler("login", async (data: Credentials) => {
+			const devices = await this.login(data);
+			const current = device.getStoreValue("deviceId");
+			const target = devices.find((d) => d.id === current) ?? devices[0];
+			if (devices.length > 1 && !devices.some((d) => d.id === current)) {
+				this.log("Several Bitzer devices found, using the first:", devices);
+			}
+			await device.setStoreValue("username", data.username);
+			await device.setStoreValue("password", data.password);
+			await device.setStoreValue("deviceId", target.id);
+			await device.connect();
+			return true;
+		});
+	}
 
-          if (isValid) {
-            const device = {
-              name: `Ensy (${data.mac_address})`,
-              data: {
-                id: data.mac_address.replace(/:/g, "").toLowerCase(),
-                mac_address: data.mac_address,
-              },
-            };
-
-            discoveredDevices = [device];
-            this.log("Device validated successfully:", device);
-            return { success: true };
-          } else {
-            throw new Error(
-              "Could not connect to device - please check MAC address and network connectivity"
-            );
-          }
-        } catch (error) {
-          this.error("Manual pairing failed:", error);
-          throw error;
-        }
-      }
-    );
-  }
+	private async login(data: Credentials): Promise<BitzerDevice[]> {
+		try {
+			const devices = await new BitzerClient(data.username, data.password).listDevices();
+			if (devices.length === 0) throw new Error("No devices found on this BITZER Smart Connect account");
+			return devices;
+		} catch (error) {
+			this.error("Bitzer login failed:", error);
+			if (error instanceof BitzerAuthError) throw new Error(this.homey.__("pair.login_failed"));
+			throw error;
+		}
+	}
 };

@@ -1,6 +1,6 @@
 {
   "id": "com.rein.ensy",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "compatibility": ">=12.4.0",
   "sdk": 3,
   "platforms": [
@@ -21,8 +21,8 @@
     "large": "/assets/images/large.png"
   },
   "description": {
-    "en": "Ventilate your homes with InoVent ventilation from Ensy. Unofficial Homey App",
-    "no": "Ventiler hjemmet ditt med InoVent ventilasjon fra Ensy. Uoffisiell Homey App"
+    "en": "Control InoVent ventilation from Ensy through BITZER Smart Connect. Unofficial Homey App",
+    "no": "Styr InoVent-ventilasjon fra Ensy via BITZER Smart Connect. Uoffisiell Homey App"
   },
   "category": [
     "climate"

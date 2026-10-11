@@ -12,7 +12,8 @@
     "measure_temperature.extract",
     "measure_temperature.exhaust",
     "measure_temperature.outside",
-    "measure_temperature.heater"
+    "measure_temperature.heater",
+    "measure_humidity"
   ],
   "images": {
     "small": "/drivers/inovent/assets/images/small.png",
@@ -20,9 +21,9 @@
   },
   "capabilitiesOptions": {
     "target_temperature": {
-      "min": 15,
+      "min": 10,
       "max": 26,
-      "step": 1
+      "step": 0.5
     },
     "thermostat_mode": {
       "values": [
@@ -51,7 +52,7 @@
     "measure_temperature.exhaust": {
       "title": {
         "en": "Exhaust Temperature",
-        "no": "Uttrekks temperatur"
+        "no": "Avkast temperatur"
       }
     },
     "measure_temperature.outside": {
@@ -65,17 +66,34 @@
         "en": "Heater Temperature",
         "no": "Varmeapparat temperatur"
       }
-    },
-    "onoff.heating": {
-      "title": {
-        "en": "Turn on/off",
-        "no": "Slå på/av"
-      }
     }
   },
   "pair": [
     {
-      "id": "manual_pairing"
+      "id": "login_credentials",
+      "template": "login_credentials",
+      "options": {
+        "logo": "/drivers/inovent/assets/images/small.png",
+        "title": {
+          "en": "BITZER Smart Connect",
+          "no": "BITZER Smart Connect"
+        },
+        "usernameLabel": {
+          "en": "E-mail",
+          "no": "E-post"
+        },
+        "usernamePlaceholder": {
+          "en": "you@example.com"
+        },
+        "passwordLabel": {
+          "en": "Password",
+          "no": "Passord"
+        },
+        "passwordPlaceholder": {
+          "en": "Password",
+          "no": "Passord"
+        }
+      }
     },
     {
       "id": "list_devices",
@@ -87,6 +105,27 @@
     {
       "id": "add_devices",
       "template": "add_devices"
+    }
+  ],
+  "repair": [
+    {
+      "id": "login_credentials",
+      "template": "login_credentials",
+      "options": {
+        "logo": "/drivers/inovent/assets/images/small.png",
+        "title": {
+          "en": "BITZER Smart Connect",
+          "no": "BITZER Smart Connect"
+        },
+        "usernameLabel": {
+          "en": "E-mail",
+          "no": "E-post"
+        },
+        "passwordLabel": {
+          "en": "Password",
+          "no": "Passord"
+        }
+      }
     }
   ]
 }
