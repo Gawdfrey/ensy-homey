@@ -4,7 +4,7 @@ import WebSocket from "ws";
 
 // Ensy moved InoVent units to the BITZER Smart Connect cloud (Lodam LMC311 controller).
 // Login uses the official mobile app's OIDC client: many accounts have no web access, which
-// rules out the web SPA client. The web MVC endpoints still accept the session it creates.
+// rules out the web SPA client. Reads use the web Configurations/AsJSON endpoint with that token.
 const LOGIN_BASE = "https://login.bitzersmartconnect.com";
 const API_BASE = "https://api.bitzersmartconnect.com/api";
 const WWW_BASE = "https://www.bitzersmartconnect.com";
@@ -24,6 +24,7 @@ const HUB_RECONNECT_MAX_MS = 300_000;
 const HUB_RX_TIMEOUT_MS = 45_000; // server pings every ~16s
 const HUB_KEEPALIVE_MS = 15_000;
 const POLL_INTERVAL_MS = 120_000;
+const HTTP_TIMEOUT_MS = 15_000;
 const REDIRECTS = [301, 302, 303, 307, 308];
 const ANTIFORGERY_RE =
 	/name=["']__RequestVerificationToken["'][^>]*value=["']([^"']+)["']/;
@@ -58,7 +59,6 @@ export interface BitzerDevice {
 interface Parameter {
 	id: string; // e.g. "_USER.Control.VentSet"
 	value: string | null;
-	isCombo: boolean;
 }
 
 export class BitzerAuthError extends Error {}
@@ -114,7 +114,6 @@ export class BitzerClient extends EventEmitter {
 	private jar = new CookieJar();
 	private accessToken?: string;
 	private tokenExpiresAt = 0;
-	private wwwReady = false;
 	private parameters = new Map<string, Parameter>(); // keyed by short key, e.g. "Control.VentSet"
 	private online = false;
 	private ws?: WebSocket;
@@ -184,7 +183,7 @@ export class BitzerClient extends EventEmitter {
 		return this.setParameters({ [PARAM.TARGET_TEMPERATURE]: temperature.toFixed(1) });
 	}
 
-	/** Write parameters through the web Configurations form (the only write path besides MQTT/BLE). */
+	/** Write parameters one by one; writes are serialized so they reach the unit in order. */
 	setParameters(changes: Record<string, string>): Promise<void> {
 		const run = this.writeQueue.then(() => this.save(changes));
 		this.writeQueue = run.catch(() => undefined);
@@ -204,7 +203,6 @@ export class BitzerClient extends EventEmitter {
 				parameters.set(shortKey(p.id), {
 					id: p.id,
 					value: p.actualValue === null || p.actualValue === undefined ? null : String(p.actualValue),
-					isCombo: p.displayFormt === "FORM_BOOL",
 				});
 			}
 		}
@@ -215,84 +213,45 @@ export class BitzerClient extends EventEmitter {
 
 	// -- writes -------------------------------------------------------------------
 
+	/**
+	 * Writes go through the endpoint the official app and Google Home use. The web form
+	 * (Configurations/Save) also accepts writes, but they are often never delivered to the unit.
+	 */
 	private async save(changes: Record<string, string>): Promise<void> {
 		const deviceId = this.requireDeviceId();
 		if (this.parameters.size === 0) await this.refresh();
-		for (let attempt = 0; attempt < 2; attempt++) {
-			const csrf = await this.antiforgeryToken();
-			// Every field blank / "-1" means "unchanged"; only the targeted parameters carry values.
-			const body = new URLSearchParams({ btnSubmit: "", hdnDeviceId: String(deviceId) });
-			for (const p of this.parameters.values()) body.set(saveField(p), p.isCombo ? "-1" : "");
-			for (const [key, value] of Object.entries(changes)) {
-				const param = this.parameters.get(key);
-				if (!param) throw new Error(`Unknown parameter ${key}`);
-				body.set(saveField(param), value);
-			}
-			body.set("__RequestVerificationToken", csrf);
-			const res = await this.http("POST", `${WWW_BASE}/Configurations/Save`, {
-				body,
-				headers: {
-					Authorization: `Bearer ${await this.token()}`,
-					Origin: WWW_BASE,
-					Referer: `${WWW_BASE}/main/configurations/${deviceId}`,
-				},
-			});
-			// Success redirects back to the configuration page; anything else means the session lapsed.
-			if (res.status === 200 || (REDIRECTS.includes(res.status) && !res.location.includes(LOGIN_BASE))) {
-				for (const [key, value] of Object.entries(changes)) {
-					const param = this.parameters.get(key);
-					if (param) param.value = value;
-				}
-				this.emit("update");
-				return;
-			}
-			this.wwwReady = false;
-		}
-		throw new Error("Bitzer rejected the change");
-	}
-
-	private async antiforgeryToken(): Promise<string> {
-		const url = `${WWW_BASE}/Configurations?deviceId=${this.requireDeviceId()}`;
-		if (!this.wwwReady) await this.establishWwwSession(url);
-		let page = await this.http("GET", url, { headers: { Authorization: `Bearer ${await this.token()}` } });
-		let match = page.text.match(ANTIFORGERY_RE);
-		if (!match) {
-			await this.establishWwwSession(url);
-			page = await this.http("GET", url, { headers: { Authorization: `Bearer ${await this.token()}` } });
-			match = page.text.match(ANTIFORGERY_RE);
-		}
-		if (!match) throw new Error("Could not obtain Bitzer form token");
-		return match[1];
-	}
-
-	/** The MVC site has its own OIDC client; the IdP session from our login satisfies it silently. */
-	private async establishWwwSession(url: string): Promise<void> {
-		await this.token();
-		let current = url;
-		for (let i = 0; i < 12; i++) {
-			const res = await this.http("GET", current);
-			if (REDIRECTS.includes(res.status) && res.location) {
-				current = absolute(current, res.location);
-				continue;
-			}
-			const form = res.text.match(/<form\b[^>]*action=["']([^"']+)["'][^>]*>([\s\S]*?)<\/form>/i);
-			if (res.status === 200 && form && form[1].includes("signin-oidc")) {
-				const action = absolute(current, decodeHtml(form[1]));
-				const post = await this.http("POST", action, { body: new URLSearchParams(formInputs(form[2])) });
-				if (post.location) {
-					current = absolute(action, post.location);
+		for (const [key, value] of Object.entries(changes)) {
+			const param = this.parameters.get(key);
+			if (!param) throw new Error(`Unknown parameter ${key}`);
+			for (let attempt = 0; attempt < 2; attempt++) {
+				const res = await this.http("POST", `${API_BASE}/GoogleHome/update-device-parameter`, {
+					json: { DeviceId: deviceId, ParameterId: param.id, Value: value },
+					headers: { Authorization: `Bearer ${await this.token()}`, Accept: "application/json" },
+				});
+				if (res.status === 401) {
+					this.accessToken = undefined;
 					continue;
 				}
+				// "false" is also returned when the value was already set, so confirm against the unit.
+				const accepted =
+					res.status === 200 &&
+					(res.text.trim() === "true" || (await this.readParameter(param.id)) === Number(value));
+				if (!accepted) {
+					throw new Error(`Bitzer rejected ${key}=${value} (${res.status} ${res.text.slice(0, 100)})`);
+				}
+				param.value = value;
+				break;
 			}
-			if (res.status === 200 && /\/account\/login/i.test(current)) {
-				// IdP session gone: log in again and retry once
-				await this.login();
-				current = url;
-				continue;
-			}
-			break;
 		}
-		this.wwwReady = true;
+		this.emit("update");
+	}
+
+	private async readParameter(parameterId: string): Promise<number | undefined> {
+		const param = await this.getJson(
+			`${API_BASE}/GoogleHome/get-device-parameter/${this.requireDeviceId()}?parameterId=${encodeURIComponent(parameterId)}`,
+		);
+		const value = Number(param?.actualValue);
+		return Number.isFinite(value) ? value : undefined;
 	}
 
 	// -- realtime (SignalR JSON hub protocol) -------------------------------------
@@ -304,6 +263,7 @@ export class BitzerClient extends EventEmitter {
 			const negotiate = await fetch(`${SIGNALR_HUB}/negotiate?negotiateVersion=1`, {
 				method: "POST",
 				headers: { Authorization: `Bearer ${token}` },
+				signal: AbortSignal.timeout(HTTP_TIMEOUT_MS),
 			});
 			if (!negotiate.ok) throw new Error(`negotiate ${negotiate.status}`);
 			const info: any = await negotiate.json();
@@ -315,11 +275,10 @@ export class BitzerClient extends EventEmitter {
 			ws.on("open", () => {
 				ws.send(JSON.stringify({ protocol: "json", version: 1 }) + RS);
 				const device = this.requireDeviceId();
-				// Mirror the official client's opening sequence.
+				// Only subscribe. The official client also calls DeviceActivated/SetActiveViewString while
+				// its settings page is open; holding that view permanently appears to keep the gateway busy
+				// polling every parameter, which starves writes.
 				this.invoke("Subscribe", [`${device}_Updates`]);
-				this.invoke("subscribe", [`${device}_Updates`]);
-				this.invoke("DeviceActivated", [String(device)]);
-				this.invoke("SetActiveViewString", [device, "Configuration"]);
 				this.hubBackoff = HUB_RECONNECT_MIN_MS;
 				this.keepaliveTimer = setInterval(() => ws.send(JSON.stringify({ type: 6 }) + RS), HUB_KEEPALIVE_MS);
 				this.armRxTimeout();
@@ -418,7 +377,6 @@ export class BitzerClient extends EventEmitter {
 	/** Authorization-code + PKCE login as the mobile app, posting the credentials to the IdP form. */
 	private async login(): Promise<void> {
 		this.jar.clear();
-		this.wwwReady = false;
 		const verifier = crypto.randomBytes(32).toString("base64url");
 		const challenge = crypto.createHash("sha256").update(verifier).digest("base64url");
 		const query = new URLSearchParams({
@@ -516,18 +474,28 @@ export class BitzerClient extends EventEmitter {
 	private async http(
 		method: string,
 		url: string,
-		options: { body?: URLSearchParams; headers?: Record<string, string> } = {},
+		options: { body?: URLSearchParams; json?: unknown; headers?: Record<string, string> } = {},
 	): Promise<HttpResult> {
 		const headers: Record<string, string> = { "User-Agent": "ensy-homey", ...options.headers };
 		const cookie = this.jar.header(url);
 		if (cookie) headers.Cookie = cookie;
 		if (options.body) headers["Content-Type"] = "application/x-www-form-urlencoded";
-		const res = await fetch(url, {
-			method,
-			headers,
-			body: options.body?.toString(),
-			redirect: "manual",
-		});
+		if (options.json !== undefined) headers["Content-Type"] = "application/json";
+		const started = Date.now();
+		let res: Response;
+		try {
+			res = await fetch(url, {
+				method,
+				headers,
+				body: options.json !== undefined ? JSON.stringify(options.json) : options.body?.toString(),
+				redirect: "manual",
+				signal: AbortSignal.timeout(HTTP_TIMEOUT_MS),
+			});
+		} catch (error) {
+			const { host, pathname } = new URL(url);
+			const reason = error instanceof Error ? error.message : String(error);
+			throw new Error(`${method} ${host}${pathname} failed after ${Date.now() - started} ms: ${reason}`);
+		}
 		this.jar.store(url, res);
 		return { status: res.status, location: res.headers.get("location") ?? "", text: await res.text() };
 	}
@@ -542,9 +510,6 @@ function shortKey(id: string): string {
 	return id.startsWith("_USER.") ? id.slice(6) : id;
 }
 
-function saveField(param: Parameter): string {
-	return `${param.id.replace(/\./g, "_")}${param.isCombo ? "_C" : "_T"}`;
-}
 
 function absolute(current: string, location: string): string {
 	return location.startsWith("http") ? location : new URL(location, current).toString();

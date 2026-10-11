@@ -6,6 +6,7 @@
     "repair_required": "Log in to BITZER Smart Connect: open the device settings and choose Repair.",
     "offline": "The ventilation unit is offline in BITZER Smart Connect.",
     "connection_failed": "Could not connect to BITZER Smart Connect.",
-    "preset_unsupported": "Away/boost is not supported through BITZER Smart Connect yet."
+    "preset_unsupported": "Away/boost is not supported through BITZER Smart Connect yet.",
+    "write_failed": "Could not change the setting:"
   }
 }

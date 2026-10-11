@@ -110,7 +110,8 @@ export = class InoventVentilationDevice extends Homey.Device {
 	}
 
 	private async onTargetTemperatureChanged(value: number) {
-		await this.requireClient().setTargetTemperature(Math.round(value * 2) / 2);
+		const client = this.requireClient();
+		this.runWrite("target temperature", () => client.setTargetTemperature(Math.round(value * 2) / 2));
 	}
 
 	private async onThermostatModeChanged(value: string) {
@@ -119,7 +120,26 @@ export = class InoventVentilationDevice extends Homey.Device {
 	}
 
 	private async onFanModeChanged(value: FanModeId) {
-		await this.requireClient().setFanMode(FAN_MODES[value] ?? FAN_MODE.NORMAL);
+		const client = this.requireClient();
+		this.runWrite("fan mode", () => client.setFanMode(FAN_MODES[value] ?? FAN_MODE.NORMAL));
+	}
+
+	/**
+	 * Writes go through several cloud round-trips and can exceed Homey's capability timeout, so they
+	 * run in the background. A failure is surfaced and the capabilities fall back to the cloud state.
+	 */
+	private runWrite(what: string, write: () => Promise<void>) {
+		write()
+			.then(() => this.unsetWarning().catch(this.error))
+			.catch(async (error) => {
+				const message = error instanceof Error ? error.message : String(error);
+				this.error(`Failed to set ${what}:`, error);
+				await this.setWarning(`${this.homey.__("device.write_failed")} ${message}`).catch(this.error);
+				await this.homey.notifications
+					.createNotification({ excerpt: `Ensy: ${this.homey.__("device.write_failed")} ${what}: ${message}` })
+					.catch(this.error);
+				await this.client?.refresh().catch(this.error);
+			});
 	}
 
 	// Flow card actions
@@ -128,7 +148,7 @@ export = class InoventVentilationDevice extends Homey.Device {
 	}
 
 	async setFanModeAction(fanMode: FanModeId) {
-		await this.onFanModeChanged(fanMode);
+		await this.requireClient().setFanMode(FAN_MODES[fanMode] ?? FAN_MODE.NORMAL);
 		await this.setCapabilityValue("inovent_fan_mode", fanMode);
 	}
 
